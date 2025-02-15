@@ -1,7 +1,8 @@
+html
 {% extends 'base.html' %}
 {% block content %}
     <h1>Вход</h1>
-    <form method="post" action="{{ url for('login')}}">
+    <form method="post" action="{{ url_for('login') }}">
         {{ form.hidden_tag() }}
         <div>
             {{ form.username.label }}

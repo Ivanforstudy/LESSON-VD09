@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,12 +8,12 @@
 <body>
 
 <nav>
-    <a href="{{ url for('index') }}">Игра</a>
+    <a href="{{ url_for('index') }}">Игра</a>
     {% if current_user.is_authenticated %}
-        <a href="{{ url for('logout') }}">Выход из аккаунта</a>
+        <a href="{{ url_for('logout') }}">Выход из аккаунта</a>
     {% else %}
-        <a href="{{ url for('login') }}">Вход в аккаунт</a>
-        <a href="{{ url for('register') }}">Регистрация</a>
+        <a href="{{ url_for('login') }}">Вход в аккаунт</a>
+        <a href="{{ url_for('register') }}">Регистрация</a>
     {% endif %}
 </nav>
 <div>
