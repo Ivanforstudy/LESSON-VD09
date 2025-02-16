@@ -1,4 +1,6 @@
+from crypt import methods
 
+from django.contrib.auth import login
 from flask import Flask, render_template, request, redirect, url_for, flash
 from app import app, db, bcrypt
 from app.models import User
@@ -19,51 +21,68 @@ def register():
 
     form = RegistrationForm()
     if form.validate_on_submit():
-        # Проверка, занято ли имя пользователя
-        if User.query.filter_by(username=form.username.data).first():
-            flash('Имя пользователя уже занято. Пожалуйста, выберите другое.', 'danger')
-            return redirect(url_for('register'))
 
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(username=form.username.data, password=hashed_password)
         db.session.add(user)
         db.session.commit()
-        flash('Вы успешно зарегистрировались!', 'success')
+        flash('Вы успешно зарегистрировались!')
         return redirect(url_for('login'))
 
-    return render_template("register.html", form=form)
+    return render_template("register.html")
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def registration():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User.query.filter_by(username=form.username.data, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        flash('Вы успешно зарегистрировались!')
+        return redirect(url_for('login'))
+
+    return render_template("register.html",)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def registration():
+    if current_user.is_ausenticated:
+      return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash((form.password.data)).decode('utf-8')
+        user = User(username=form.username.data, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        flash('Вы успешно зарегистрировались!')
+        return redirect(url_for('login'))
+    return render_template("register.html")
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_ausenticated:
+       return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
+
         user = User.query.filter_by(username=form.username.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
-            flash('Вы успешно вошли в систему!', 'success')
             return redirect(url_for('index'))
         else:
-            flash('Неверно введены данные аккаунта', 'danger')
+          flash('Неверно введены данные')
 
-    return render_template("login.html", form=form)
-
-
-@app.route('/logout', methods=['GET', 'POST'])
+    return render_template("login.html")
+@app.route('/logout')
 def logout():
-    logout_user()
-    flash('Вы вышли из системы.', 'success')
-    return redirect(url_for('login'))
-
-
+    login_user()
+    return redirect(url_for('ligin'))
 @app.route('/click')
 @login_required
 def click():
-    current_user.clicks += 1  # Убедитесь, что `clicks` — это валидный атрибут в вашей модели User
-    db.session.commit()
-    flash('Ваш клик был зарегистрирован!', 'info')
-    return redirect(url_for('index'))
-
+    current_user.clicks +=1

@@ -1,14 +1,20 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from app import db
+from app import login_manager
 
-db = SQLAlchemy()
 
-class User(db.Model, UserMixin):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-    clicks = db.Column(db.Integer, default=0)  # Исправлено здесь
+    clicks = db.Column(db.Integer, default=0)
 
-    def __repr__(self):  # Исправлено здесь
-        return f'Пользователь {self.username} - клики: {self.clicks}'
+    def __repr__(self):
+        return f'User {self.username} - clicks: {self.clicks}'
+
+
+@login_manager.user_loader 
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
